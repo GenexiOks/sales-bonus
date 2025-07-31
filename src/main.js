@@ -6,8 +6,7 @@
  */
 function calculateSimpleRevenue(purchase, _product) {
   const { discount, sale_price, quantity } = purchase;
-  console.log(discount);
-  return sale_price * quantity * discount;
+  return sale_price * quantity * (1 - discount / 100);
   // @TODO: Расчет выручки от операции
 }
 
@@ -58,8 +57,6 @@ function analyzeSalesData(data, options) {
     products_sold: {},
   }));
 
-  console.log(sellerStats);
-
   const sellerIndex = (someIndex = Object.fromEntries(
     sellerStats.map((item) => [item.id, item])
   ));
@@ -75,10 +72,15 @@ function analyzeSalesData(data, options) {
       seller.sales_count++;
       seller.revenue += record.total_amount;
     }
+
     record.items.forEach((item) => {
       const product = productIndex[item.sku];
 
-      seller.profit = calculateRevenue(item, product);
+      const cost = product.purchase_price * item.quantity;
+
+      const revenue = calculateRevenue(item, product);
+
+      seller.profit += revenue - cost;
 
       if (!seller.products_sold[item.sku]) {
         seller.products_sold[item.sku] = 0;
@@ -87,7 +89,7 @@ function analyzeSalesData(data, options) {
     });
   });
 
-  sellerStats.sort((a, b) => b.revenue - a.revenue);
+  sellerStats.sort((a, b) => b.profit - a.profit);
 
   sellerStats.forEach((seller, index) => {
     seller.bonus = calculateBonus(index, sellerStats.length, seller); // Считаем бонус
@@ -101,10 +103,10 @@ function analyzeSalesData(data, options) {
   return sellerStats.map((seller) => ({
     seller_id: seller.id,
     name: seller.name,
-    revenue: Math.floor(seller.revenue * 100) / 100,
-    profit: Math.floor(seller.profit * 100) / 100,
+    revenue: seller.revenue.toFixed(2),
+    profit: seller.profit.toFixed(2),
     sales_count: seller.sales_count,
     top_products: seller.top_products,
-    bonus: Math.floor(seller.bonus * 100) / 100,
+    bonus: seller.bonus.toFixed(2),
   }));
 }
