@@ -18,16 +18,18 @@ function calculateSimpleRevenue(purchase, _product) {
  * @param seller карточка продавца
  * @returns {number}
  */
+
 function calculateBonusByProfit(index, total, seller) {
-  if (первый) {
-    return бонус;
-} else if (второй или третий) {
-    return бонус;
-} else if (последний) {
+  if (index === 0) {
+    return (seller.profit / 100) * 15;
+  } else if (index === 1 || index === 2) {
+    return (seller.profit / 100) * 10;
+  } else if (index === total - 1) {
     return 0;
-} else { // Для всех остальных
-    return бонус;
-}
+  } else {
+    // Для всех остальных
+    return (seller.profit / 100) * 5;
+  }
 }
 
 /**
@@ -56,20 +58,18 @@ function analyzeSalesData(data, options) {
     products_sold: {},
   }));
 
-  const sellerIndex = (someIndex = Object.fromEntries(
-    sellerStats.map((item) => [item.id, item])
-  ));
+  const sellerIndex = (someIndex = Object.fromEntries(sellerStats.map((item) => [item.id, item])));
 
-  const productIndex = (someIndex = Object.fromEntries(
-    data.products.map((item) => [item.sku, item])
-  ));
+  const productIndex = (someIndex = Object.fromEntries(data.products.map((item) => [item.sku, item])));
+
+  console.log(productIndex);
 
   data.purchase_records.forEach((record) => {
     // Чек
     const seller = sellerIndex[record.seller_id]; // Продавец
     if (record.seller_id === seller.id) {
       seller.sales_count++;
-      seller.revenue += record.total_amount - record.total_discount;
+      seller.profit += record.total_amount - record.total_discount;
     }
     record.items.forEach((item) => {
       const product = productIndex[item.sku];
@@ -83,10 +83,11 @@ function analyzeSalesData(data, options) {
     });
   });
 
-  sellerStats.sort((a, b) => b.revenue - a.revenue);
+  sellerStats.sort((a, b) => b.profit - a.profit);
 
   sellerStats.forEach((seller, index) => {
-        seller.bonus = calculateRevenue()// Считаем бонус
-        seller.top_products = // Формируем топ-10 товаров
-});
+    seller.bonus = calculateBonus(index, sellerStats.length, seller); // Считаем бонус
+    seller.top_products = Object.entries(seller.products_sold).map(([sku, quantity]) => ({ sku, quantity }));
+  });
+  console.log(sellerStats);
 }
