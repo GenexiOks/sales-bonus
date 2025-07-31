@@ -4,6 +4,7 @@
  * @param _product карточка товара
  * @returns {number}
  */
+
 function calculateSimpleRevenue(purchase, _product) {
   const { discount, sale_price, quantity } = purchase;
   return sale_price * quantity * (1 - discount / 100);
@@ -92,7 +93,7 @@ function analyzeSalesData(data, options) {
   sellerStats.sort((a, b) => b.profit - a.profit);
 
   sellerStats.forEach((seller, index) => {
-    seller.bonus = calculateBonus(index, sellerStats.length, seller); // Считаем бонус
+    seller.bonus = calculateBonus(index, sellerStats.length, seller);
     seller.top_products = Object.entries(seller.products_sold).map(
       ([sku, quantity]) => ({ sku, quantity })
     );
